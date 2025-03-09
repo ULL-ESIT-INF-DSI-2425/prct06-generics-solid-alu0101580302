@@ -1,27 +1,39 @@
 import { describe, test, expect } from "vitest";
-import { Cancion, Disco, Artista, BibliotecaMusica, Genero } from "../src/ejercicio-2";
+import { Cancion, Disco, Artista, BibliotecaMusica, Genero, Single, SongDiscografia, DiscoDiscografia, SingleDiscografia } from "../src/ejercicio-2";
 
 const song1: Cancion = new Cancion("Shake It Off", 242, [Genero.POP], true, 3000000000);
 const song2: Cancion = new Cancion("Cruel Summer", 180, [Genero.POP], true, 228000000);
 const song3: Cancion = new Cancion("Haruhikage", 259, [Genero.ROCK], false, 216000);
 const song4: Cancion = new Cancion("Shoujo Rei", 289, [Genero.POP], false, 614000);
+const song5: Cancion = new Cancion("Cancion 5", 300, [Genero.CLASSICAL], false, 500000);
+const song6: Cancion = new Cancion("Cancion 5 (ver 2)", 300, [Genero.DISCO], false, 500000);
 const disc1: Disco = new Disco("Disco 1", 2020, [song1, song2]);
 const disc2: Disco = new Disco("Disco 2", 2023, [song3, song4]);
-const art1: Artista = new Artista("Taylor Swift", 88200000, [disc1]);
-const art2: Artista = new Artista("MyGO!!!!!", 200000, [disc2]);
+const art1: Artista = new Artista("Taylor Swift", 88200000, new SongDiscografia([disc1]));
+const art2: Artista = new Artista("MyGO!!!!!", 200000, new DiscoDiscografia([disc2]));
 const biblioteca: BibliotecaMusica = new BibliotecaMusica([art1, art2], [disc1, disc2], [song1, song2, song3, song4]);
+
+describe("Pruebas de Discografia", () => {
+    test("", () => {
+        expect(() => new DiscoDiscografia([])).toThrowError("La discografía debe tener al menos un disco");
+    });
+
+    test("", () => {
+        expect(() => new SingleDiscografia([])).toThrowError("La discografía debe tener al menos un disco");
+    });
+
+    test("", () => {
+        expect(() => new SongDiscografia([])).toThrowError("La discografía debe tener al menos un disco");
+    });
+});
 
 describe("Pruebas de Artista", () => {
     test("", () => {
-        expect(() => new Artista("", 88200000, [disc1])).toThrowError("El nombre del artista tiene que tener al menos un caracter");
+        expect(() => new Artista("", 88200000, new DiscoDiscografia([disc1]))).toThrowError("El nombre del artista tiene que tener al menos un caracter");
     });
 
     test("", () => {
-        expect(() => new Artista("a", -88200000, [disc1])).toThrowError("El número de oyentes ha de ser positivo");
-    });
-
-    test("", () => {
-        expect(() => new Artista("a", 88200000, [])).toThrowError("El artista debe de tener al menos un disco");
+        expect(() => new Artista("a", -88200000, new DiscoDiscografia([disc1]))).toThrowError("El número de oyentes ha de ser positivo");
     });
 });
 
@@ -36,6 +48,24 @@ describe("Pruebas de Disco", () => {
 
     test("", () => {
         expect(() => new Disco("Disco 1", 2020, [])).toThrowError("El disco debe de tener al menos una canción");
+    });
+});
+
+describe("Pruebas de Single", () => {
+    test("", () => {
+        expect(() => new Single("Single", 2020, [song1, song6])).toThrowError("Todas las canciones de un single deben de ser versiones de una misma");
+    });
+    
+    test("", () => {
+        expect(() => new Single("", 2020, [song5, song6])).toThrowError("El nombre del disco tiene que tener al menos un caracter");
+    });
+
+    test("", () => {
+        expect(() => new Single("Disco 1", -2020, [song5, song6])).toThrowError("El año de publicación debe de ser mayor que 0");
+    });
+
+    test("", () => {
+        expect(() => new Single("Disco 1", 2020, [])).toThrowError("El disco debe de tener al menos una canción");
     });
 });
 

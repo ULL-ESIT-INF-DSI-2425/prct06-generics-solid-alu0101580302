@@ -1,8 +1,10 @@
 import { describe, test, expect } from "vitest";
-import {} from "../src/ejercicio-6"
+import { Sparrow } from "../src/ejercicio-6"
 
-describe("Pruebas de ", () => {
+const sparrow: Sparrow = new Sparrow();
+
+describe("Pruebas de Bird", () => {
     test("", () => {
-
+        expect(sparrow.fly()).toStrictEqual("Flying...");
     });
 });

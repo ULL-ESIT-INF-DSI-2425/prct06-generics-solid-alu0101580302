@@ -44,23 +44,75 @@ export class Cancion {
    }
 }
 
+/**
+ * Interfaz SongCollection. Componentes mínimos de una colección de canciones
+ */
 interface SongCollection {
-
+    name: string;
+    year: number;
+    canciones: Cancion[];
 }
 
-class Single {
-    
+/**
+ * Clase Single. Representa un disco que contiene una sola canción o variaciones de la misma
+ */
+export class Single implements SongCollection {
+
+    /**
+     * Constructor de Single
+     * @param name - Nombre del single
+     * @param year - Año de publicación del single
+     * @param canciones - Canciones del single (han de ser distintas versiones de una misma canción)
+     */
+    constructor(public readonly name: string, public readonly year: number, public readonly canciones: Cancion[]) {
+        if (!canciones.every((song) => canciones[0].name === song.name.substring(0, canciones[0].name.length))) {
+            throw new Error("Todas las canciones de un single deben de ser versiones de una misma");
+        } else if (name.length === 0) {
+            throw new Error("El nombre del disco tiene que tener al menos un caracter");
+        } else if (year <= 0) {
+            throw new Error("El año de publicación debe de ser mayor que 0");
+        } else if (canciones.length === 0) {
+            throw new Error("El disco debe de tener al menos una canción");
+        }
+    }
 }
 
-abstract class Discografia<T> {
+/**
+ * Clase abstracta Discografia. Representa la forma que ha de tener una discografía.
+ */
+abstract class Discografia<T extends SongCollection> {
 
+    /**
+     * Constructor de Discografia
+     * @param discos - Discos de la discografía
+     */
+    constructor(public discos: T[]) {
+        if (discos.length === 0) {
+            throw new Error("La discografía debe tener al menos un disco");
+        }
+    }
 }
+
+/**
+ * Clase SingleDiscografia. Representa una discografía solo de singles
+ */
+export class SingleDiscografia extends Discografia<Single> { }
+
+/**
+ * Clase DiscoDiscografia. Representa una discografia solo de discos
+ */
+export class DiscoDiscografia extends Discografia<Disco> { }
+
+/**
+ * Clase SongDiscografia. Representa una discografia tanto de singles como de discos
+ */
+export class SongDiscografia extends Discografia<SongCollection> { }
 
 /**
 * Clase Disco. Permite inicializar discos
 */
 
-export class Disco {
+export class Disco implements SongCollection {
 
    /**
     * Consturctor de Disco
@@ -68,28 +120,14 @@ export class Disco {
     * @param year - Año de publicación del disco
     * @param _canciones - Lista de canciones en el disco
     */
-   constructor(public readonly name: string, public readonly year: number, private _canciones: Cancion[]) {
+   constructor(public readonly name: string, public readonly year: number, public readonly canciones: Cancion[]) {
        if (name.length === 0) {
            throw new Error("El nombre del disco tiene que tener al menos un caracter");
        } else if (year <= 0) {
            throw new Error("El año de publicación debe de ser mayor que 0");
-       } else if (_canciones.length === 0) {
+       } else if (canciones.length === 0) {
            throw new Error("El disco debe de tener al menos una canción");
        }
-   }
-
-   /**
-    * Getter de canciones
-    */
-   get canciones() {
-       return this._canciones;
-   }
-
-   /**
-    * Setter de canciones
-    */
-   set canciones(canciones: Cancion[]) {
-       this._canciones = canciones;
    }
 }
 
@@ -105,13 +143,11 @@ export class Artista {
     * @param oyentes - Oyentes mensuales del artista
     * @param _discografia - Lista de discos del artista
     */
-   constructor(public readonly name: string, public readonly oyentes: number, private _discografia: Disco[]) { 
+   constructor(public readonly name: string, public readonly oyentes: number, private _discografia: Discografia<SongCollection>) { 
        if (name.length === 0) {
            throw new Error("El nombre del artista tiene que tener al menos un caracter");
        } else if (oyentes < 0) {
            throw new Error("El número de oyentes ha de ser positivo");
-       } else if (_discografia.length === 0) {
-           throw new Error("El artista debe de tener al menos un disco");
        }
    }
 
@@ -125,7 +161,7 @@ export class Artista {
    /**
     * setter de discografia
     */
-   set discografia(discografia: Disco[]) {
+   set discografia(discografia: Discografia<SongCollection>) {
        this._discografia = discografia;
    }
 }
@@ -148,7 +184,7 @@ export class BibliotecaMusica {
        }
 
        artistas.forEach((art) => {
-           art.discografia.forEach((disc) => {
+           art.discografia.discos.forEach((disc) => {
                if (!this.discos.includes(disc)) {
                    this.discos.push(disc);
                }
@@ -169,7 +205,7 @@ export class BibliotecaMusica {
        console.table(this.artistas.map(a => ({
            name: a.name,
            oyentes: a.oyentes,
-           discografia: a.discografia.map((d) => d.name)
+           discografia: a.discografia.discos.map((d) => d.name)
        })));
 
        console.log("Información de discos:");
@@ -194,7 +230,7 @@ export class BibliotecaMusica {
        console.table(result.map(a => ({
            name: a.name,
            oyentes: a.oyentes,
-           discografia: a.discografia.map((d) => d.name)
+           discografia: a.discografia.discos.map((d) => d.name)
        })));
 
        return result;
