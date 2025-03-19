@@ -2,7 +2,7 @@
 /**
  * Interfaz genérica Arithmeticable. Define la forma que ha de tener una clase que sea aritmética
  */
-interface Arithmeticable<T> {
+export interface Arithmeticable<T> {
     add(arith: T): T;
     substract(arith: T): T;
     multiply(arith: T): T;
